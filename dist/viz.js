@@ -18,8 +18,9 @@ class NYCMap extends React.Component {
                 zoom: this.state.zoom,
                 bounds: this.state.bounds },
             React.createElement(TileLayer, {
-                attribution: '\xA9 <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
+                url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: 'abcd'
             })
         );
     }
