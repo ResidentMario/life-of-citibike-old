@@ -1,0 +1,30 @@
+{
+  "name": "life-of-citibike",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "browserify": "browserify -t [ babelify --presets [ react ] ] src/viz.jsx -o dist/viz.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ResidentMario/life-of-citibike.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ResidentMario/life-of-citibike/issues"
+  },
+  "homepage": "https://github.com/ResidentMario/life-of-citibike#readme",
+  "dependencies": {
+    "babel-preset-react": "^6.23.0",
+    "babelify": "^7.3.0",
+    "http-server": "^0.9.0",
+    "react": "^15.4.2",
+    "react-collapse": "^2.3.3",
+    "react-dom": "^15.4.2",
+    "react-height": "^2.2.0",
+    "react-motion": "^0.4.7"
+  }
+}
