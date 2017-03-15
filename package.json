@@ -20,11 +20,11 @@
   "dependencies": {
     "babel-preset-react": "^6.23.0",
     "babelify": "^7.3.0",
+    "d3": "^4.7.3",
     "http-server": "^0.9.0",
+    "leaflet": "^1.0.3",
     "react": "^15.4.2",
-    "react-collapse": "^2.3.3",
     "react-dom": "^15.4.2",
-    "react-height": "^2.2.0",
-    "react-motion": "^0.4.7"
+    "react-leaflet": "^1.1.3"
   }
 }
