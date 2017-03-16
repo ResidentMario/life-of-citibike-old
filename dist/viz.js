@@ -2,7 +2,8 @@
 const React = window.React;
 const { Map, TileLayer } = window.ReactLeaflet;
 
-class NYCMap extends React.Component {
+/* macro object containing all the state */
+class Visualization extends React.Component {
     constructor() {
         super();
         this.state = {
@@ -12,20 +13,63 @@ class NYCMap extends React.Component {
     }
 
     render() {
+        return React.createElement(NYCMap, {
+            zoom: this.state.zoom,
+            bounds: this.state.bounds,
+            attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
+            url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+            subdomains: 'abcd' });
+    }
+}
+
+/* base map */
+class NYCMap extends React.Component {
+    render() {
         return React.createElement(
             Map,
             {
-                zoom: this.state.zoom,
-                bounds: this.state.bounds },
+                zoom: this.props.zoom,
+                bounds: this.props.bounds },
             React.createElement(TileLayer, {
-                attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
-                url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-                subdomains: 'abcd'
+                attribution: this.props.attribution,
+                url: this.props.url,
+                subdomains: this.props.subdomains
             })
         );
     }
 }
 
-window.ReactDOM.render(React.createElement(NYCMap, null), document.getElementById('visualization'));
+/* display element superimposed on the map that is vertically and horizontally anchored in the center of the screen */
+class Overlay extends React.Component {
+    render() {
+        return React.createElement(
+            'div',
+            { className: 'overlay' },
+            React.createElement(IntroScreen, null)
+        );
+    }
+}
+
+class IntroScreen extends React.Component {
+    render() {
+        return React.createElement(
+            'div',
+            { className: 'intro-screen-frame' },
+            React.createElement(
+                'div',
+                { className: 'intro-screen-content' },
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse est purus, rhoncus id nulla vel, rhoncus ullamcorper risus. Aenean nulla arcu, dignissim vel metus in, luctus convallis odio. Etiam eget ipsum nec lacus ultrices efficitur quis non nibh. Phasellus ullamcorper risus et ex aliquam mollis. Ut fringilla a tellus at condimentum. In ut fringilla elit, ac placerat ipsum. Aliquam congue ac mauris non vehicula. Aenean vitae nulla in elit semper venenatis. Duis auctor eros ante. Curabitur cursus odio risus, et euismod elit fermentum quis. Donec fermentum odio libero, eget vulputate risus accumsan eu. Aliquam tristique nibh fermentum ligula tempor porttitor. Pellentesque convallis tempor lectus, in euismod nunc eleifend ac. Duis faucibus ultricies est nec ornare. Nam pulvinar ultricies lorem, hendrerit varius urna aliquam vitae.'
+            ),
+            React.createElement(
+                'div',
+                { className: 'intro-screen-continue-text' },
+                '\u2193 scroll down to continue \u2193'
+            )
+        );
+    }
+}
+
+window.ReactDOM.render(React.createElement(Visualization, null), document.getElementById('visualization'));
+window.ReactDOM.render(React.createElement(Overlay, null), document.getElementById('overlay'));
 
 },{}]},{},[1]);

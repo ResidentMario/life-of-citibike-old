@@ -9,6 +9,24 @@ html, body {
     width: 100%;
 }
 #visualization {
-    height: 100%;
+    height: 98%;
     width: 100%;
+}
+.overlay {
+    top: 50%;
+    left: 50%;
+    position:absolute;
+    z-index:1000;
+    transform: translate(-50%, -50%);
+}
+.intro-screen-frame {
+    width: 800px;
+    border-radius: 20px;
+    background: #eee;
+    padding: 40px;
+}
+.intro-screen-continue-text {
+    font-size: 14px;
+    font-style: italic;
+    text-align: center;
 }
