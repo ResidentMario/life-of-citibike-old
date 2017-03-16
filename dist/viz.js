@@ -4089,6 +4089,19 @@ class Scrollbar extends React.Component {
 
 window.ReactDOM.render(React.createElement(Visualization, null), document.getElementById('visualization-container'));
 
+/* hang the scroll event */
+window.addEventListener('scroll', function (e) {
+    console.log("HELLO");
+    // last_known_scroll_position = window.scrollY;
+    // if (!ticking) {
+    //     window.requestAnimationFrame(function() {
+    //         console.log("Scrolled");
+    //         ticking = false;
+    //     });
+    // }
+    // ticking = true;
+});
+
 },{"rc-progress":8}],36:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};

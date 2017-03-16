@@ -9,10 +9,10 @@ class Visualization extends React.Component {
         super();
         this.state = {
             zoom: 13,
-            bounds: [[40.6794268,-73.92989109999999], [40.789747, -74.075979]],
+            bounds: [[40.6794268, -73.92989109999999], [40.789747, -74.075979]],
             scroll_ticks: 50,
             max_scroll_ticks: 100
-        };
+        }
     }
 
     render() {
@@ -87,3 +87,16 @@ class Scrollbar extends React.Component {
 
 
 window.ReactDOM.render(<Visualization />, document.getElementById('visualization-container'));
+
+/* hang the scroll event */
+window.addEventListener('scroll', function(e) {
+    console.log("HELLO");
+    // last_known_scroll_position = window.scrollY;
+    // if (!ticking) {
+    //     window.requestAnimationFrame(function() {
+    //         console.log("Scrolled");
+    //         ticking = false;
+    //     });
+    // }
+    // ticking = true;
+});
