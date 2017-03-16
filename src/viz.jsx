@@ -11,13 +11,31 @@ class Visualization extends React.Component {
             zoom: 13,
             bounds: [[40.6794268, -73.92989109999999], [40.789747, -74.075979]],
             scroll_ticks: 50,
-            max_scroll_ticks: 100
-        }
+            max_scroll_ticks: 100,
+        };
+
+        this.handleScroll = this.handleScroll.bind(this);  // binding is necessary to make "this" work in the callback
     }
+
+    handleScroll(e) {
+        if (e.deltaY > 0) {
+            console.log("Scrolled down...");
+            if (this.state.scroll_ticks < this.state.max_scroll_ticks) {
+                this.state.scroll_ticks += 1;
+            }
+        } else {
+            console.log("Scrolled up...");
+            if (this.state.scroll_ticks > 0) {
+                this.state.scroll_ticks--;
+            }
+        }
+        console.log(this.state.scroll_ticks);
+    }
+
 
     render() {
         return (
-            <div className="visualization-content-frame">
+            <div className="visualization-content-frame" onWheel={this.handleScroll}>
                 {[
                     <NYCMap
                         zoom={this.state.zoom}
@@ -28,7 +46,7 @@ class Visualization extends React.Component {
                         key={1}>
                     </NYCMap>,
                     <Overlay key={2}/>,
-                    <Scrollbar percent={this.state.scroll_ticks / this.state.max_scroll_ticks * 100} key={3}/>
+                    <Scrollbar percent={this.state.scroll_ticks} key={3}/>
                 ]}
             </div>
         );
@@ -40,7 +58,8 @@ class NYCMap extends React.Component {
     render() {
         return <Map
                 zoom={this.props.zoom}
-                bounds={this.props.bounds}>
+                bounds={this.props.bounds}
+                scrollWheelZoom={false}>
                 <TileLayer
                     attribution={this.props.attribution}
                     url={this.props.url}
@@ -75,6 +94,7 @@ class IntroScreen extends React.Component {
 
 class Scrollbar extends React.Component {
     render() {
+        console.log("RERENDERING...");
         return <div className="scroll-bar">
             <Line percent={this.props.percent}
                   strokeWidth="1"
@@ -87,16 +107,3 @@ class Scrollbar extends React.Component {
 
 
 window.ReactDOM.render(<Visualization />, document.getElementById('visualization-container'));
-
-/* hang the scroll event */
-window.addEventListener('scroll', function(e) {
-    console.log("HELLO");
-    // last_known_scroll_position = window.scrollY;
-    // if (!ticking) {
-    //     window.requestAnimationFrame(function() {
-    //         console.log("Scrolled");
-    //         ticking = false;
-    //     });
-    // }
-    // ticking = true;
-});

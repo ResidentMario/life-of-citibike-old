@@ -4009,19 +4009,36 @@ class Visualization extends React.Component {
             scroll_ticks: 50,
             max_scroll_ticks: 100
         };
+
+        this.handleScroll = this.handleScroll.bind(this); // binding is necessary to make "this" work in the callback
+    }
+
+    handleScroll(e) {
+        if (e.deltaY > 0) {
+            console.log("Scrolled down...");
+            if (this.state.scroll_ticks < this.state.max_scroll_ticks) {
+                this.state.scroll_ticks += 1;
+            }
+        } else {
+            console.log("Scrolled up...");
+            if (this.state.scroll_ticks > 0) {
+                this.state.scroll_ticks--;
+            }
+        }
+        console.log(this.state.scroll_ticks);
     }
 
     render() {
         return React.createElement(
-            'div',
-            { className: 'visualization-content-frame' },
+            "div",
+            { className: "visualization-content-frame", onWheel: this.handleScroll },
             [React.createElement(NYCMap, {
                 zoom: this.state.zoom,
                 bounds: this.state.bounds,
-                attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
-                url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-                subdomains: 'abcd',
-                key: 1 }), React.createElement(Overlay, { key: 2 }), React.createElement(Scrollbar, { percent: this.state.scroll_ticks / this.state.max_scroll_ticks * 100, key: 3 })]
+                attribution: "\xA9 <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> \xA9 <a href=\"http://cartodb.com/attributions\">CartoDB</a>",
+                url: "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+                subdomains: "abcd",
+                key: 1 }), React.createElement(Overlay, { key: 2 }), React.createElement(Scrollbar, { percent: this.state.scroll_ticks, key: 3 })]
         );
     }
 }
@@ -4033,7 +4050,8 @@ class NYCMap extends React.Component {
             Map,
             {
                 zoom: this.props.zoom,
-                bounds: this.props.bounds },
+                bounds: this.props.bounds,
+                scrollWheelZoom: false },
             React.createElement(TileLayer, {
                 attribution: this.props.attribution,
                 url: this.props.url,
@@ -4047,8 +4065,8 @@ class NYCMap extends React.Component {
 class Overlay extends React.Component {
     render() {
         return React.createElement(
-            'div',
-            { className: 'overlay' },
+            "div",
+            { className: "overlay" },
             React.createElement(IntroScreen, null)
         );
     }
@@ -4057,17 +4075,17 @@ class Overlay extends React.Component {
 class IntroScreen extends React.Component {
     render() {
         return React.createElement(
-            'div',
-            { className: 'intro-screen-frame' },
+            "div",
+            { className: "intro-screen-frame" },
             React.createElement(
-                'div',
-                { className: 'intro-screen-content' },
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse est purus, rhoncus id nulla vel, rhoncus ullamcorper risus. Aenean nulla arcu, dignissim vel metus in, luctus convallis odio. Etiam eget ipsum nec lacus ultrices efficitur quis non nibh. Phasellus ullamcorper risus et ex aliquam mollis. Ut fringilla a tellus at condimentum. In ut fringilla elit, ac placerat ipsum. Aliquam congue ac mauris non vehicula. Aenean vitae nulla in elit semper venenatis. Duis auctor eros ante. Curabitur cursus odio risus, et euismod elit fermentum quis. Donec fermentum odio libero, eget vulputate risus accumsan eu. Aliquam tristique nibh fermentum ligula tempor porttitor. Pellentesque convallis tempor lectus, in euismod nunc eleifend ac. Duis faucibus ultricies est nec ornare. Nam pulvinar ultricies lorem, hendrerit varius urna aliquam vitae.'
+                "div",
+                { className: "intro-screen-content" },
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse est purus, rhoncus id nulla vel, rhoncus ullamcorper risus. Aenean nulla arcu, dignissim vel metus in, luctus convallis odio. Etiam eget ipsum nec lacus ultrices efficitur quis non nibh. Phasellus ullamcorper risus et ex aliquam mollis. Ut fringilla a tellus at condimentum. In ut fringilla elit, ac placerat ipsum. Aliquam congue ac mauris non vehicula. Aenean vitae nulla in elit semper venenatis. Duis auctor eros ante. Curabitur cursus odio risus, et euismod elit fermentum quis. Donec fermentum odio libero, eget vulputate risus accumsan eu. Aliquam tristique nibh fermentum ligula tempor porttitor. Pellentesque convallis tempor lectus, in euismod nunc eleifend ac. Duis faucibus ultricies est nec ornare. Nam pulvinar ultricies lorem, hendrerit varius urna aliquam vitae."
             ),
             React.createElement(
-                'div',
-                { className: 'intro-screen-continue-text' },
-                '\u2193 scroll down to continue \u2193'
+                "div",
+                { className: "intro-screen-continue-text" },
+                "\u2193 scroll down to continue \u2193"
             )
         );
     }
@@ -4075,32 +4093,20 @@ class IntroScreen extends React.Component {
 
 class Scrollbar extends React.Component {
     render() {
+        console.log("RERENDERING...");
         return React.createElement(
-            'div',
-            { className: 'scroll-bar' },
+            "div",
+            { className: "scroll-bar" },
             React.createElement(Line, { percent: this.props.percent,
-                strokeWidth: '1',
-                strokeColor: 'gray',
-                strokeLinecap: 'square',
-                trailColor: 'white' })
+                strokeWidth: "1",
+                strokeColor: "gray",
+                strokeLinecap: "square",
+                trailColor: "white" })
         );
     }
 }
 
 window.ReactDOM.render(React.createElement(Visualization, null), document.getElementById('visualization-container'));
-
-/* hang the scroll event */
-window.addEventListener('scroll', function (e) {
-    console.log("HELLO");
-    // last_known_scroll_position = window.scrollY;
-    // if (!ticking) {
-    //     window.requestAnimationFrame(function() {
-    //         console.log("Scrolled");
-    //         ticking = false;
-    //     });
-    // }
-    // ticking = true;
-});
 
 },{"rc-progress":8}],36:[function(require,module,exports){
 // shim for using process in browser
