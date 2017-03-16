@@ -1,13 +1,17 @@
 const React = window.React;
 const { Map, TileLayer } = window.ReactLeaflet;
 
+const Line = require('rc-progress').Line;
+
 /* macro object containing all the state */
 class Visualization extends React.Component {
     constructor() {
         super();
         this.state = {
             zoom: 13,
-            bounds: [[40.6794268,-73.92989109999999], [40.789747, -74.075979]]
+            bounds: [[40.6794268,-73.92989109999999], [40.789747, -74.075979]],
+            scroll_ticks: 50,
+            max_scroll_ticks: 100
         };
     }
 
@@ -62,5 +66,19 @@ class IntroScreen extends React.Component {
     }
 }
 
+class Scrollbar extends React.Component {
+    render() {
+        return <div className="scroll-bar">
+            <Line percent="10"
+                  strokeWidth="1"
+                  strokeColor="gray"
+                  strokeLinecap="square"
+                  trailColor="white"/>
+        </div>
+    }
+}
+
+
 window.ReactDOM.render(<Visualization />, document.getElementById('visualization'));
 window.ReactDOM.render(<Overlay />, document.getElementById('overlay'));
+window.ReactDOM.render(<Scrollbar />, document.getElementById('scroll-bar'));
