@@ -17,13 +17,20 @@ class Visualization extends React.Component {
 
     render() {
         return (
-            <NYCMap
-                zoom={this.state.zoom}
-                bounds={this.state.bounds}
-                attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-                url='http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-                subdomains='abcd'>
-            </NYCMap>
+            <div className="visualization-content-frame">
+                {[
+                    <NYCMap
+                        zoom={this.state.zoom}
+                        bounds={this.state.bounds}
+                        attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+                        url='http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+                        subdomains='abcd'
+                        key={1}>
+                    </NYCMap>,
+                    <Overlay key={2}/>,
+                    <Scrollbar percent={this.state.scroll_ticks / this.state.max_scroll_ticks * 100} key={3}/>
+                ]}
+            </div>
         );
     }
 }
@@ -69,7 +76,7 @@ class IntroScreen extends React.Component {
 class Scrollbar extends React.Component {
     render() {
         return <div className="scroll-bar">
-            <Line percent="10"
+            <Line percent={this.props.percent}
                   strokeWidth="1"
                   strokeColor="gray"
                   strokeLinecap="square"
@@ -79,6 +86,4 @@ class Scrollbar extends React.Component {
 }
 
 
-window.ReactDOM.render(<Visualization />, document.getElementById('visualization'));
-window.ReactDOM.render(<Overlay />, document.getElementById('overlay'));
-window.ReactDOM.render(<Scrollbar />, document.getElementById('scroll-bar'));
+window.ReactDOM.render(<Visualization />, document.getElementById('visualization-container'));

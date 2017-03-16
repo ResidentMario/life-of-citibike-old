@@ -4012,12 +4012,17 @@ class Visualization extends React.Component {
     }
 
     render() {
-        return React.createElement(NYCMap, {
-            zoom: this.state.zoom,
-            bounds: this.state.bounds,
-            attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
-            url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            subdomains: 'abcd' });
+        return React.createElement(
+            'div',
+            { className: 'visualization-content-frame' },
+            [React.createElement(NYCMap, {
+                zoom: this.state.zoom,
+                bounds: this.state.bounds,
+                attribution: '\xA9 <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> \xA9 <a href="http://cartodb.com/attributions">CartoDB</a>',
+                url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                subdomains: 'abcd',
+                key: 1 }), React.createElement(Overlay, { key: 2 }), React.createElement(Scrollbar, { percent: this.state.scroll_ticks / this.state.max_scroll_ticks * 100, key: 3 })]
+        );
     }
 }
 
@@ -4073,7 +4078,7 @@ class Scrollbar extends React.Component {
         return React.createElement(
             'div',
             { className: 'scroll-bar' },
-            React.createElement(Line, { percent: '10',
+            React.createElement(Line, { percent: this.props.percent,
                 strokeWidth: '1',
                 strokeColor: 'gray',
                 strokeLinecap: 'square',
@@ -4082,9 +4087,7 @@ class Scrollbar extends React.Component {
     }
 }
 
-window.ReactDOM.render(React.createElement(Visualization, null), document.getElementById('visualization'));
-window.ReactDOM.render(React.createElement(Overlay, null), document.getElementById('overlay'));
-window.ReactDOM.render(React.createElement(Scrollbar, null), document.getElementById('scroll-bar'));
+window.ReactDOM.render(React.createElement(Visualization, null), document.getElementById('visualization-container'));
 
 },{"rc-progress":8}],36:[function(require,module,exports){
 // shim for using process in browser
