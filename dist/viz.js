@@ -13,14 +13,12 @@ class Visualization extends React.Component {
             zoom: 13,
             bounds: [[40.6794268, -73.92989109999999], [40.789747, -74.075979]],
             scroll_ticks: 0,
-            max_scroll_ticks: 100
+            max_scroll_ticks: 100,
+            screen_state: { intro: true }
         };
 
         // binding is necessary to make "this" work
         this.handleScroll = this.handleScroll.bind(this);
-        this.setScreenState = this.setScreenState.bind(this);
-
-        this.setScreenState();
     }
 
     /* the main event loop for the visualization */
@@ -28,21 +26,16 @@ class Visualization extends React.Component {
         if (e.deltaY > 0) {
             if (this.state.scroll_ticks < this.state.max_scroll_ticks) {
                 this.state.scroll_ticks += 1;
+                // re-render.
                 this.setState({ newForm: true });
             }
         } else {
             if (this.state.scroll_ticks > 0) {
                 this.state.scroll_ticks--;
+                // re-render.
                 this.setState({ newForm: true });
             }
         }
-    }
-
-    setScreenState() {
-        let percent = this.state.scroll_ticks / this.state.max_scroll_ticks * 100;
-        let s = this.state.screen_state = {};
-
-        s.intro = percent < 5;
     }
 
     render() {
@@ -58,8 +51,7 @@ class Visualization extends React.Component {
                 url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
                 subdomains: 'abcd',
                 key: 1 }), React.createElement(Overlay, { key: 2,
-                percent: percent
-            }), React.createElement(Scrollbar, { percent: percent, key: 3 })]
+                percent: percent }), React.createElement(Scrollbar, { percent: percent, key: 3 })]
         );
     }
 }
