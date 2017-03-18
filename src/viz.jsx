@@ -84,20 +84,24 @@ class Overlay extends React.Component {
     }
 
     render() {
-        if (this.state.introTextOnScreen) {
+        // NB: transitions are handled as CSS animations.
+
+        // Case 1: we have the introductory text on the screen and are transitioning by painting it out.
+        if ((this.props.percent > 5) && this.state.introTextOnScreen) {
             this.state.introTextOnScreen = false;
             return <div className="overlay"><IntroScreen fadeIn={false} fadeOut={true}/></div>
         }
-        else {
+        // Case 2: we do not have the introductory text on the screen and are transitioning by painting it in.
+        else if ((this.props.percent <= 5) && !this.state.introTextOnScreen) {
             this.state.introTextOnScreen = true;
             return <div className="overlay"><IntroScreen fadeIn={true} fadeOut={false}/></div>
         }
     }
 
-    /* only redraw if we need to transition */
+    // Only redraw if we need to transition. These are all of the same cases as the above.
     shouldComponentUpdate(nextProps, nextState) {
-        return ((nextProps.percent <= 5 && this.state.introTextOnScreen == false) ||
-                (nextProps.percent > 5 && this.state.introTextOnScreen == true));
+        return ((nextProps.percent <= 5 && !this.state.introTextOnScreen) ||
+                (nextProps.percent > 5 && this.state.introTextOnScreen));
     }
 }
 
