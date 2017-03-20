@@ -1,8 +1,8 @@
 const React = window.React;
 const { Map, TileLayer } = window.ReactLeaflet;
-const d3 = window.d3;
+// const d3 = window.d3;
 
-// const Line = require('rc-progress').Line;
+const inset_graph = require("./inset_graph");
 
 /* macro object containing all the state */
 class Visualization extends React.Component {
@@ -80,7 +80,7 @@ class NYCMap extends React.Component {
 class Overlay extends React.Component {
     constructor() {
         super();
-        this.state = {introTextOnScreen: false}
+        this.state = {introTextOnScreen: false, stationHistoryOnScreen: false}
     }
 
     render() {
@@ -96,12 +96,18 @@ class Overlay extends React.Component {
             this.state.introTextOnScreen = true;
             return <div className="overlay"><IntroScreen fadeIn={true} fadeOut={false}/></div>
         }
+        // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
+        else if ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen) {
+            this.state.stationHistoryOnScreen = true;
+            return <div className="overlay"><InsetGraph/></div>
+        }
     }
 
     // Only redraw if we need to transition. These are all of the same cases as the above.
     shouldComponentUpdate(nextProps, nextState) {
         return ((nextProps.percent <= 5 && !this.state.introTextOnScreen) ||
-                (nextProps.percent > 5 && this.state.introTextOnScreen));
+                (nextProps.percent > 5 && this.state.introTextOnScreen) ||
+                ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen));
     }
 }
 
@@ -126,6 +132,23 @@ class Scrollbar extends React.Component {
     render() {
         return (<div className="scroll-bar" style={{width: this.props.percent + "%"}}></div>);
     }
+}
+
+class InsetGraph extends React.Component {
+
+    render() {
+        console.log("HELLO WORLD");
+        return (
+            <div className="inset-graph"></div>
+        );
+    }
+
+    componentDidMount() {
+        console.log("HELLO WORLD 2");
+        let el = ReactDOM.findDOMNode();
+        inset_graph.create(el, {width: 200, height: 200}, null)
+    }
+
 }
 
 
