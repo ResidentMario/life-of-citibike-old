@@ -48,20 +48,14 @@ class Visualization extends React.Component {
         else if ((this.props.percent <= 5) && !this.state.introTextOnScreen) {
             this.state.introTextOnScreen = true;
         }
-        // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
+        // Case 3: we do not have the station display on the screen and are transitioning by painting it in.
         else if ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen) {
             this.state.stationHistoryOnScreen = true;
         }
         // Case 4: we have the introductory text on the screen and are transitioning by painting it out.
-        else if ((10 < this.props.percent < 15) && !this.state.stationHistoryOnScreen) {
+        else if ((10 < this.props.percent < 15) && this.state.stationHistoryOnScreen) {
             this.state.stationHistoryOnScreen = false;
         }
-    }
-
-    // TODO: Write a screen state differ, which both the map and overlay will inherit.
-    getScreenStateChange(prev_state, curr_state) {
-        // cf. http://stackoverflow.com/questions/31683075/how-to-do-a-deep-comparison-between-2-objects-with-lodash
-        return;
     }
 
     render() {
@@ -82,6 +76,10 @@ class Visualization extends React.Component {
         // This is done using generic "show" and "hide" CSS mixin transition classes. We make judicious use of
         // shouldComponentUpdate to ensure that for ticks when the element isn't actually doing anything we don't
         // waste time repainting it either.
+        //
+        // The data explaning to the sub-elements what needs to change is calculated as an object diff against this
+        // element's changing state (via getScreenStateDiff). This diff object is passed to the underlying visual
+        // elements, which know what to do when a change that they care about is in the data model.
 
         return (
             <div className="visualization-content-frame" onWheel={this.handleScroll}>
@@ -103,6 +101,7 @@ class Visualization extends React.Component {
             </div>
         );
     }
+
 }
 
 /* base map, as well as the map components which get added and removed as the viz runs */
@@ -115,6 +114,7 @@ class NYCMap extends React.Component {
             key={1}
         />;
         let map_elements = [tiles];
+        // TODO: station display.
 
         return <Map
                 zoom={this.props.zoom}
@@ -135,20 +135,33 @@ class Overlay extends React.Component {
     render() {
         // NB: transitions are handled as CSS animations.
 
+        console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
+
         // Case 1: we have the introductory text on the screen and are transitioning by painting it out.
         if ((this.props.percent > 5) && this.state.introTextOnScreen) {
             this.state.introTextOnScreen = false;
+            console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
             return <div className="overlay"><IntroScreen fadeIn={false} fadeOut={true}/></div>
         }
         // Case 2: we do not have the introductory text on the screen and are transitioning by painting it in.
         else if ((this.props.percent <= 5) && !this.state.introTextOnScreen) {
             this.state.introTextOnScreen = true;
+            console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
             return <div className="overlay"><IntroScreen fadeIn={true} fadeOut={false}/></div>
         }
-        // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
-        else if ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen) {
+        // Case 3: we do not have the station display on the screen and are transitioning by painting it in.
+        else if ((5 <= this.props.percent) && (this.props.percent < 50) && !this.state.stationHistoryOnScreen) {
             this.state.stationHistoryOnScreen = true;
+            console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
             return <div className="overlay"><InsetGraph/></div>
+        }
+        // Case 4: we do not have the station display on the screen and are transitioning by painting it out.
+        else if (((this.props.percent <= 5) || (this.props.percent >= 50)) && this.state.stationHistoryOnScreen) {
+            console.log(this.props.percent);
+            console.log("Painting out InsetGraph...");
+            this.state.stationHistoryOnScreen = false;
+            console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
+            return <div className="overlay"></div>
         }
     }
 
@@ -156,7 +169,8 @@ class Overlay extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         return ((nextProps.percent <= 5 && !this.state.introTextOnScreen) ||
                 (nextProps.percent > 5 && this.state.introTextOnScreen) ||
-                ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen));
+                ((5 <= this.props.percent) && (this.props.percent < 50) && !this.state.stationHistoryOnScreen) ||
+                ((this.props.percent <= 5) || (this.props.percent >= 50) && this.state.stationHistoryOnScreen));
     }
 }
 
@@ -194,7 +208,7 @@ class InsetGraph extends React.Component {
 
     componentDidMount() {
         console.log("HELLO WORLD 2");
-        let el = ReactDOM.findDOMNode();
+        let el = window.ReactDOM.findDOMNode();
         inset_graph.create(el, {width: 200, height: 200}, null)
     }
 

@@ -16580,6 +16580,7 @@ module.exports = {
 },{"d3":1}],3:[function(require,module,exports){
 const React = window.React;
 const { Map, TileLayer, Marker } = window.ReactLeaflet;
+const _ = window._;
 // const d3 = window.d3;
 
 const inset_graph = require("./inset_graph");
@@ -16600,7 +16601,7 @@ class Visualization extends React.Component {
         this.handleScroll = this.handleScroll.bind(this);
     }
 
-    /* the main event loop for the visualization */
+    /* the main event loop (via a scroll event listener) for the visualization */
     handleScroll(e) {
         if (e.deltaY > 0) {
             if (this.state.scroll_ticks < this.state.max_scroll_ticks) {
@@ -16617,8 +16618,48 @@ class Visualization extends React.Component {
         }
     }
 
+    /* change the current screen state; lower-level components detect this change and use it to update */
+    setScreenState(percent) {
+        // Case 1: we have the introductory text on the screen and are transitioning by painting it out.
+        if (this.props.percent > 5 && this.state.introTextOnScreen) {
+            this.state.introTextOnScreen = false;
+        }
+        // Case 2: we do not have the introductory text on the screen and are transitioning by painting it in.
+        else if (this.props.percent <= 5 && !this.state.introTextOnScreen) {
+                this.state.introTextOnScreen = true;
+            }
+            // Case 3: we do not have the station display on the screen and are transitioning by painting it in.
+            else if (5 < this.props.percent < 10 && !this.state.stationHistoryOnScreen) {
+                    this.state.stationHistoryOnScreen = true;
+                }
+                // Case 4: we have the introductory text on the screen and are transitioning by painting it out.
+                else if (10 < this.props.percent < 15 && this.state.stationHistoryOnScreen) {
+                        this.state.stationHistoryOnScreen = false;
+                    }
+    }
+
     render() {
         let percent = this.state.scroll_ticks / this.state.max_scroll_ticks * 100;
+
+        // Visualization elements are a combination of (1) leaflet elements painted onto the map via react-leaflet
+        // (positioned via latitude-longitude pairs) and (2) overlay elements superimposed on the viz (via absolute
+        // positioning).
+        //
+        // These elements are two distinct components, but make up the "whole" of the display. Since we want them to
+        // move in tandem, we handle the "book-keeping" of keeping them in sync with one another here.
+        //
+        // Whenever the user moves the mouse wheel a tick, the visualization basically moves forward one tick. But
+        // we're actually doing something a little more subtle; we have elements that fade in and fade out of the
+        // screen as the visualization continues. In simple cases, this fading in and out behavior is all the
+        // element does.
+        //
+        // This is done using generic "show" and "hide" CSS mixin transition classes. We make judicious use of
+        // shouldComponentUpdate to ensure that for ticks when the element isn't actually doing anything we don't
+        // waste time repainting it either.
+        //
+        // The data explaning to the sub-elements what needs to change is calculated as an object diff against this
+        // element's changing state (via getScreenStateDiff). This diff object is passed to the underlying visual
+        // elements, which know what to do when a change that they care about is in the data model.
 
         return React.createElement(
             "div",
@@ -16635,6 +16676,7 @@ class Visualization extends React.Component {
                 percent: percent }), React.createElement(Scrollbar, { percent: percent, key: 3 })]
         );
     }
+
 }
 
 /* base map, as well as the map components which get added and removed as the viz runs */
@@ -16647,6 +16689,7 @@ class NYCMap extends React.Component {
             key: 1
         });
         let map_elements = [tiles];
+        // TODO: station display.
 
         return React.createElement(
             Map,
@@ -16656,11 +16699,6 @@ class NYCMap extends React.Component {
                 scrollWheelZoom: false },
             map_elements
         );
-    }
-
-    // Only redraw if we need to transition. These are all of the same cases as the above.
-    shouldComponentUpdate(nextProps, nextState) {
-        return false;
     }
 }
 
@@ -16674,9 +16712,12 @@ class Overlay extends React.Component {
     render() {
         // NB: transitions are handled as CSS animations.
 
+        console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
+
         // Case 1: we have the introductory text on the screen and are transitioning by painting it out.
         if (this.props.percent > 5 && this.state.introTextOnScreen) {
             this.state.introTextOnScreen = false;
+            console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
             return React.createElement(
                 "div",
                 { className: "overlay" },
@@ -16686,26 +16727,36 @@ class Overlay extends React.Component {
         // Case 2: we do not have the introductory text on the screen and are transitioning by painting it in.
         else if (this.props.percent <= 5 && !this.state.introTextOnScreen) {
                 this.state.introTextOnScreen = true;
+                console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
                 return React.createElement(
                     "div",
                     { className: "overlay" },
                     React.createElement(IntroScreen, { fadeIn: true, fadeOut: false })
                 );
             }
-            // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
-            else if (5 < this.props.percent < 10 && !this.state.stationHistoryOnScreen) {
+            // Case 3: we do not have the station display on the screen and are transitioning by painting it in.
+            else if (5 <= this.props.percent && this.props.percent < 50 && !this.state.stationHistoryOnScreen) {
                     this.state.stationHistoryOnScreen = true;
+                    console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
                     return React.createElement(
                         "div",
                         { className: "overlay" },
                         React.createElement(InsetGraph, null)
                     );
                 }
+                // Case 4: we do not have the station display on the screen and are transitioning by painting it out.
+                else if ((this.props.percent <= 5 || this.props.percent >= 50) && this.state.stationHistoryOnScreen) {
+                        console.log(this.props.percent);
+                        console.log("Painting out InsetGraph...");
+                        this.state.stationHistoryOnScreen = false;
+                        console.log(this.state.introTextOnScreen, this.state.stationHistoryOnScreen);
+                        return React.createElement("div", { className: "overlay" });
+                    }
     }
 
     // Only redraw if we need to transition. These are all of the same cases as the above.
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.percent <= 5 && !this.state.introTextOnScreen || nextProps.percent > 5 && this.state.introTextOnScreen || 5 < this.props.percent < 10 && !this.state.stationHistoryOnScreen;
+        return nextProps.percent <= 5 && !this.state.introTextOnScreen || nextProps.percent > 5 && this.state.introTextOnScreen || 5 <= this.props.percent && this.props.percent < 50 && !this.state.stationHistoryOnScreen || this.props.percent <= 5 || this.props.percent >= 50 && this.state.stationHistoryOnScreen;
     }
 }
 
@@ -16746,7 +16797,7 @@ class InsetGraph extends React.Component {
 
     componentDidMount() {
         console.log("HELLO WORLD 2");
-        let el = ReactDOM.findDOMNode();
+        let el = window.ReactDOM.findDOMNode();
         inset_graph.create(el, { width: 200, height: 200 }, null);
     }
 
