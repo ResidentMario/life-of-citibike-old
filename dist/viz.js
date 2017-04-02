@@ -16579,7 +16579,7 @@ module.exports = {
 
 },{"d3":1}],3:[function(require,module,exports){
 const React = window.React;
-const { Map, TileLayer } = window.ReactLeaflet;
+const { Map, TileLayer, Marker } = window.ReactLeaflet;
 // const d3 = window.d3;
 
 const inset_graph = require("./inset_graph");
@@ -16629,27 +16629,38 @@ class Visualization extends React.Component {
                 attribution: "\xA9 <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> \xA9 <a href=\"http://cartodb.com/attributions\">CartoDB</a>",
                 url: "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
                 subdomains: "abcd",
-                key: 1 }), React.createElement(Overlay, { key: 2,
+                key: 1,
+                percent: percent
+            }), React.createElement(Overlay, { key: 2,
                 percent: percent }), React.createElement(Scrollbar, { percent: percent, key: 3 })]
         );
     }
 }
 
-/* base map */
+/* base map, as well as the map components which get added and removed as the viz runs */
 class NYCMap extends React.Component {
     render() {
+        let tiles = React.createElement(TileLayer, {
+            attribution: this.props.attribution,
+            url: this.props.url,
+            subdomains: this.props.subdomains,
+            key: 1
+        });
+        let map_elements = [tiles];
+
         return React.createElement(
             Map,
             {
                 zoom: this.props.zoom,
                 bounds: this.props.bounds,
                 scrollWheelZoom: false },
-            React.createElement(TileLayer, {
-                attribution: this.props.attribution,
-                url: this.props.url,
-                subdomains: this.props.subdomains
-            })
+            map_elements
         );
+    }
+
+    // Only redraw if we need to transition. These are all of the same cases as the above.
+    shouldComponentUpdate(nextProps, nextState) {
+        return false;
     }
 }
 

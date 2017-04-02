@@ -1,5 +1,6 @@
 const React = window.React;
-const { Map, TileLayer } = window.ReactLeaflet;
+const { Map, TileLayer, Marker } = window.ReactLeaflet;
+const _ = window._;
 // const d3 = window.d3;
 
 const inset_graph = require("./inset_graph");
@@ -20,7 +21,7 @@ class Visualization extends React.Component {
         this.handleScroll = this.handleScroll.bind(this);
     }
 
-    /* the main event loop for the visualization */
+    /* the main event loop (via a scroll event listener) for the visualization */
     handleScroll(e) {
         if (e.deltaY > 0) {
             if (this.state.scroll_ticks < this.state.max_scroll_ticks) {
@@ -37,8 +38,50 @@ class Visualization extends React.Component {
         }
     }
 
+    /* change the current screen state; lower-level components detect this change and use it to update */
+    setScreenState(percent) {
+        // Case 1: we have the introductory text on the screen and are transitioning by painting it out.
+        if ((this.props.percent > 5) && this.state.introTextOnScreen) {
+            this.state.introTextOnScreen = false;
+        }
+        // Case 2: we do not have the introductory text on the screen and are transitioning by painting it in.
+        else if ((this.props.percent <= 5) && !this.state.introTextOnScreen) {
+            this.state.introTextOnScreen = true;
+        }
+        // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
+        else if ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen) {
+            this.state.stationHistoryOnScreen = true;
+        }
+        // Case 4: we have the introductory text on the screen and are transitioning by painting it out.
+        else if ((10 < this.props.percent < 15) && !this.state.stationHistoryOnScreen) {
+            this.state.stationHistoryOnScreen = false;
+        }
+    }
+
+    // TODO: Write a screen state differ, which both the map and overlay will inherit.
+    getScreenStateChange(prev_state, curr_state) {
+        // cf. http://stackoverflow.com/questions/31683075/how-to-do-a-deep-comparison-between-2-objects-with-lodash
+        return;
+    }
+
     render() {
         let percent = this.state.scroll_ticks / this.state.max_scroll_ticks * 100;
+
+        // Visualization elements are a combination of (1) leaflet elements painted onto the map via react-leaflet
+        // (positioned via latitude-longitude pairs) and (2) overlay elements superimposed on the viz (via absolute
+        // positioning).
+        //
+        // These elements are two distinct components, but make up the "whole" of the display. Since we want them to
+        // move in tandem, we handle the "book-keeping" of keeping them in sync with one another here.
+        //
+        // Whenever the user moves the mouse wheel a tick, the visualization basically moves forward one tick. But
+        // we're actually doing something a little more subtle; we have elements that fade in and fade out of the
+        // screen as the visualization continues. In simple cases, this fading in and out behavior is all the
+        // element does.
+        //
+        // This is done using generic "show" and "hide" CSS mixin transition classes. We make judicious use of
+        // shouldComponentUpdate to ensure that for ticks when the element isn't actually doing anything we don't
+        // waste time repainting it either.
 
         return (
             <div className="visualization-content-frame" onWheel={this.handleScroll}>
@@ -49,7 +92,9 @@ class Visualization extends React.Component {
                         attribution='&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
                         url='http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
                         subdomains='abcd'
-                        key={1}>
+                        key={1}
+                        percent={percent}
+                    >
                     </NYCMap>,
                     <Overlay key={2}
                              percent={percent}/>,
@@ -60,18 +105,22 @@ class Visualization extends React.Component {
     }
 }
 
-/* base map */
+/* base map, as well as the map components which get added and removed as the viz runs */
 class NYCMap extends React.Component {
     render() {
+        let tiles = <TileLayer
+            attribution={this.props.attribution}
+            url={this.props.url}
+            subdomains={this.props.subdomains}
+            key={1}
+        />;
+        let map_elements = [tiles];
+
         return <Map
                 zoom={this.props.zoom}
                 bounds={this.props.bounds}
                 scrollWheelZoom={false}>
-                <TileLayer
-                    attribution={this.props.attribution}
-                    url={this.props.url}
-                    subdomains={this.props.subdomains}
-                />
+            {map_elements}
         </Map>
     }
 }
