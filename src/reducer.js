@@ -5,7 +5,7 @@ The Redux reducer that handles generating the next state based on the previous s
 const core = require('../src/core.js');
 const moment = require('moment');
 
-export function reducer(state, action) {
+export default function reducer(state, action) {
     switch (action.type) {
         case 'GET_STATIONS_ON_DATE_DISPLAY':
             return {

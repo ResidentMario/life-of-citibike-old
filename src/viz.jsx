@@ -1,9 +1,15 @@
+// Globals imported from the window.
 const React = window.React;
 const { Map, TileLayer, Marker } = window.ReactLeaflet;
 const _ = window._;
 // const d3 = window.d3;
 
-const inset_graph = require("./inset_graph");
+
+// Initialize Redux state.
+const makeStore = require('./store.js').makeStore;
+let store = makeStore();
+
+// const inset_graph = require("./inset_graph");
 
 /* macro object containing all the state */
 class Visualization extends React.Component {
@@ -148,7 +154,7 @@ class Overlay extends React.Component {
         // Case 3: we do not have the station display on the screen and are transitioning by painting the display.
         else if ((5 < this.props.percent < 10) && !this.state.stationHistoryOnScreen) {
             this.state.stationHistoryOnScreen = true;
-            return <div className="overlay"><InsetGraph/></div>
+            return <div className="overlay"></div>
         }
     }
 
@@ -183,22 +189,22 @@ class Scrollbar extends React.Component {
     }
 }
 
-class InsetGraph extends React.Component {
-
-    render() {
-        console.log("HELLO WORLD");
-        return (
-            <div className="inset-graph"></div>
-        );
-    }
-
-    componentDidMount() {
-        console.log("HELLO WORLD 2");
-        let el = ReactDOM.findDOMNode();
-        inset_graph.create(el, {width: 200, height: 200}, null)
-    }
-
-}
+// class InsetGraph extends React.Component {
+//
+//     render() {
+//         console.log("HELLO WORLD");
+        {/*return (*/}
+            {/*<div className="inset-graph"></div>*/}
+        {/*);*/}
+//     }
+//
+//     componentDidMount() {
+//         console.log("HELLO WORLD 2");
+//         let el = ReactDOM.findDOMNode();
+//         inset_graph.create(el, {width: 200, height: 200}, null)
+//     }
+//
+// }
 
 
 window.ReactDOM.render(<Visualization />, document.getElementById('visualization-container'));
