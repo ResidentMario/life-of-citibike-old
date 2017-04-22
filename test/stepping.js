@@ -1,10 +1,7 @@
+// Tests for the visualization's simple step forward/backwards logic.
 "use strict";
 
-// const im = require('immutable');
 const expect = require('chai').expect;
-// const sinon = require('sinon');
-// const PassThrough = require('stream').PassThrough;
-
 const core = require('../src/core.js');
 
 describe('stepping logic', () => {

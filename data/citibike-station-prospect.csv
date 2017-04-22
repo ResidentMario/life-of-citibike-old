@@ -1,64 +1,4 @@
-/*
-This module contains all of the core methods that feed data to the front end application, as well as the stepping logic.
-*/
-
-const http = require('http');
-const d3 = require('d3');
-const moment = require('moment');
-const _ = require('lodash');
-
-export const INITIAL_STATE = new Map();
-
-export function step_back(previous_ticks, min_ticks=0) {
-    return previous_ticks === min_ticks ? previous_ticks : previous_ticks - 1;
-}
-
-export function step_forward(next_ticks, max_ticks=100) {
-    return next_ticks === max_ticks ? next_ticks : next_ticks + 1;
-}
-
-export function get_bike_inbounds(id, callback) {
-    const uri = 'http://www.residentmar.io/citibike-api/bike-inbounds/id/' + String(id);
-    const req = http.get(uri, function(response) {
-        response.on('end', () => {
-            callback(JSON.parse(response));
-        });
-    });
-    req.end();
-}
-
-export function get_bike_outbounds(id, callback) {
-    const uri = 'http://www.residentmar.io/citibike-api/bike-outbounds/id/' + String(id);
-    const req = http.get(uri, function(response) {
-        response.on('end', () => {
-            callback(JSON.parse(response));
-        });
-    });
-    req.end();
-}
-
-export function get_incoming_trips(id, callback) {
-    const uri = 'http://www.residentmar.io/citibike-api/incoming-trips/id/' + String(id);
-    const req = http.get(uri, function(response) {
-        response.on('end', () => {
-            callback(JSON.parse(response));
-        });
-    });
-    req.end();
-}
-
-export function get_outgoing_trips(id, callback) {
-    const uri = 'http://www.residentmar.io/citibike-api/outgoing-trips/id/' + String(id);
-    const req = http.get(uri, function(response) {
-        response.on('end', () => {
-            callback(JSON.parse(response));
-        });
-    });
-    req.end();
-}
-
-// TODO: move the code that generated this prospectus out of a temp notebook on my Desktop and into the project
-const station_prospectus = d3.csvParse(`ID,Closed,Latitude,Longitude,Opened
+Start Station ID,closed,latitude,longitude,opened
 72,,40.76727216,-73.99392888,2013-01-01 00:00:00
 79,,40.71911552,-74.00666661,2013-01-01 00:00:00
 82,,40.71117416,-74.00016545,2013-01-01 00:00:00
@@ -720,26 +660,4 @@ const station_prospectus = d3.csvParse(`ID,Closed,Latitude,Longitude,Opened
 3435,,40.718822,-73.99596,2016-09-01 00:00:00
 3436,,40.721319,-74.010065,2016-09-01 00:00:00
 3438,,40.772248537721744,-73.95842134952545,2016-11-01 00:00:00
-3440,,40.692418292578466,-73.98949474096298,2016-11-01 00:00:00`, function(d) {
-    const t_format = 'YYYY-MM-DD';
-    return {
-        // gotcha: must be station_id, not id, because d3 overwrites an id field!
-        station_id: +d.ID,
-        closed: d.Closed ? moment(d.Closed, t_format) : null, // lowercase
-        latitude: +d.Latitude,
-        longitude: +d.Longitude,
-        opened: moment(d.Opened, t_format)
-    }
-});
-
-// TODO: Fix this per the test. Looks like I'm misunderstanding pickBy?
-export function get_stations_on_date(date) {
-    let stuff = null;
-    stuff = _.pickBy(station_prospectus, function(station) {
-        if (station.id == '160') {
-            console.log(((station.opened <= date) && (!station.closed || station.closed > date)));
-        }
-        return ((station.opened <= date) && (!station.closed || station.closed > date));
-    });
-    return stuff;
-}
+3440,,40.692418292578466,-73.98949474096298,2016-11-01 00:00:00
